@@ -3,6 +3,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from .views import generate_six_digit_id
 import uuid
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -12,6 +14,7 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
+
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
@@ -30,8 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-
-class Code(models.Model):
-    email=models.ForeignKey(CustomUser,on_delete=models.CASCADE)
-    verification_code=models.UUIDField(default=generate_six_digit_id(), editable=False)
-    is_used=models.BooleanField(default=False)
+class EcommerceUser(models.Model):
+    email = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    phoneNumber = models.IntegerField()
+    verification_code = models.UUIDField(default=generate_six_digit_id(), editable=True)

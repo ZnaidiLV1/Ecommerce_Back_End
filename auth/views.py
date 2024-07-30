@@ -1,7 +1,76 @@
 from random import random
 
-from django.shortcuts import render
+from django.core.mail import send_mail
+from rest_framework.response import Response
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .seriallizers import *
+from rest_framework.decorators import api_view
 
 def generate_six_digit_id():
     return f'{random.randint(100000, 999999)}'
+
+@api_view(['POST'])
+def create_user(request):
+    serializer = userserializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        return Response("user created successufully")
+    return Response(serializer.errors, status=400)
+
+@api_view(['POST'])
+def logout(request):
+    try:
+        refresh_token = request.data["refresh"]
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return Response({"message": "Successfully logged out."})
+    except Exception as e:
+        return Response({"error": str(e)})
+
+
+def updateVerificationcode(ecommerce):
+    ecommerce.verification_code=generate_six_digit_id()
+    ecommerce.save()
+
+@api_view(['POST'])
+def sendVerificationCode(request):
+    data=request.data
+    ecommerce_instance = EcommerceUser.objects.get(email=data["email"])
+    updateVerificationcode(ecommerce=ecommerce_instance)
+
+    subject = 'Your Verification Code'
+    message = f'Your verification code is {ecommerce_instance.verification_code}'
+    from_email = 'vegasznaidi@gmail.com'
+    recipient_list = [data["email"]]
+
+    send_mail(subject, message, from_email, recipient_list)
+
+    return Response(f'Code sent to {data["email"]}')
+
+@api_view(['POST'])
+def verifyVerificationCode(request):
+    data=request.data
+    ecommerce_instance=EcommerceUser.objects.get(email=data["email"])
+    if ecommerce_instance.verification_code==data["code"]:
+        return Response("Verified!")
+    else :
+        return Response(status=400)
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['email'] = user.email
+        # ...
+
+        return token
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 # Create your views here.
