@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'authentification',
     'rest_framework',
     'rest_framework_simplejwt',
 ]
@@ -133,7 +134,7 @@ WSGI_APPLICATION = 'Ecommerce_Backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'task_manager_db',
+        'NAME': 'Ecommerce',
         'USER': 'postgres',
         'PASSWORD': '12345678',
         'HOST': 'localhost',
