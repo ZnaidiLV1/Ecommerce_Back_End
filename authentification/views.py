@@ -5,8 +5,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-
-
+from django.contrib.auth.hashers import make_password
 from .seriallizers import *
 from rest_framework.decorators import api_view
 
@@ -47,8 +46,6 @@ def sendVerificationCode(request):
         except CustomUser.DoesNotExist:
             return Response({"error": "Ecommerce user not found."}, status=404)
 
-
-
 @api_view(['POST'])
 def verifyVerificationCode(request):
     data=request.data
@@ -73,6 +70,16 @@ def updateVerificationcode(ecommerce):
     ecommerce.verification_code=generate_six_digit_id()
     ecommerce.save()
 
+@api_view(['POST'])
+def resetPassword(request):
+    data=request.data
+    user_instance=CustomUser.objects.get(email=data["email"])
+    if user_instance is not None :
+        user_instance.password = make_password(data["new_password"])
+        user_instance.save()
+        return Response("Password has been reset")
+    else :
+        return Response("User not found")
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

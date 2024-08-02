@@ -13,5 +13,7 @@ urlpatterns =[
     path('verifyCode/',verifyVerificationCode),
     # Create User
     path('createUser/',create_user),
+    # Reset Password
+    path('reset_password/',resetPassword),
 
 ]
