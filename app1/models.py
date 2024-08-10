@@ -7,7 +7,7 @@ class Category(models.Model):
     cat_date=models.DateField(auto_now=True)
 
 class Item(models.Model):
-    item_id=models.IntegerField(primary_key=True)
+    item_id=models.AutoField(primary_key=True,auto_created=True)
     item_name=models.CharField()
     item_desc=models.CharField()
     item_image=models.CharField()
