@@ -12,3 +12,8 @@ class itemserializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = "__all__"
+
+class favserializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = "__all__"

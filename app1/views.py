@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
@@ -66,4 +66,23 @@ def get_items(request,item_cat):
     serializer=itemserializer(items,many=True)
     return Response(serializer.data)
 
-    # Create your views here.
+@api_view(['POST'])
+def create_favorite(request):
+    data=request.data
+    user=CustomUser.objects.get(email=data["email"])
+    item=Item.objects.get(item_id=data["item_id"])
+    fav=Favorite.objects.create(
+        fav_user=user,
+        fav_item=item
+    )
+    serializer=favserializer(fav,many=False)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_favorite(request, id):
+    favorite_items = Favorite.objects.filter(fav_user=id).values_list('fav_item', flat=True)
+    items = Item.objects.filter(item_id__in=favorite_items)
+    serializer = itemserializer(items, many=True)
+    return Response(serializer.data)
+
+# Create your views here.

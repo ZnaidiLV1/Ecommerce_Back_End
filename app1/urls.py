@@ -9,4 +9,7 @@ urlpatterns =[
     # Item's urls
     path('create_item/',create_item),
     path('<int:item_cat>-get_items/',get_items),
-    ]
+    # Favorite
+    path('create_favorite/',create_favorite),
+    path('<int:id>-get_favorites/',get_favorite),
+]

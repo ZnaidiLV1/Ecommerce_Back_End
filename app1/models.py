@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from authentification.models import CustomUser
 
 class Category(models.Model):
     cat_id=models.AutoField(primary_key=True,auto_created=True)
@@ -17,6 +18,12 @@ class Item(models.Model):
     item_discount = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(99)]
     )
+
     item_date=models.DateField(auto_now=True)
     item_cat=models.ForeignKey(Category,on_delete=models.CASCADE)
+
+class Favorite(models.Model):
+    fav_id=models.AutoField(primary_key=True,)
+    fav_user=models.ForeignKey(CustomUser,on_delete=models.CASCADE)
+    fav_item=models.ForeignKey(Item,on_delete=models.CASCADE)
 # Create your models here.
