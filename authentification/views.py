@@ -9,8 +9,10 @@ from django.contrib.auth.hashers import make_password
 from .seriallizers import *
 from rest_framework.decorators import api_view
 
+
 def generate_six_digit_id():
     return random.randint(100000, 999999)
+
 
 @api_view(['POST'])
 def create_user(request):
@@ -19,6 +21,7 @@ def create_user(request):
         serializer.save()
         return Response("User created successfully")
     return Response(serializer.errors, status=400)
+
 
 @api_view(['POST'])
 def sendVerificationCode(request):
@@ -31,7 +34,6 @@ def sendVerificationCode(request):
         try:
             custom_user_instance = CustomUser.objects.get(email=data["email"])
             updateVerificationcode(ecommerce=custom_user_instance)
-
 
             subject = 'Your Verification Code'
             message = f'Your verification code is {custom_user_instance.verification_code}'
@@ -46,14 +48,16 @@ def sendVerificationCode(request):
         except CustomUser.DoesNotExist:
             return Response({"error": "Ecommerce user not found."}, status=404)
 
+
 @api_view(['POST'])
 def verifyVerificationCode(request):
-    data=request.data
-    ecommerce_instance=CustomUser.objects.get(email=data["email"])
-    if ecommerce_instance.verification_code==data["verification_code"]:
+    data = request.data
+    ecommerce_instance = CustomUser.objects.get(email=data["email"])
+    if ecommerce_instance.verification_code == data["verification_code"]:
         return Response("Verified!")
-    else :
+    else:
         return Response(status=400)
+
 
 @api_view(['POST'])
 def logout(request):
@@ -67,18 +71,19 @@ def logout(request):
 
 
 def updateVerificationcode(ecommerce):
-    ecommerce.verification_code=generate_six_digit_id()
+    ecommerce.verification_code = generate_six_digit_id()
     ecommerce.save()
+
 
 @api_view(['POST'])
 def resetPassword(request):
-    data=request.data
-    user_instance=CustomUser.objects.get(email=data["email"])
-    if user_instance is not None :
+    data = request.data
+    user_instance = CustomUser.objects.get(email=data["email"])
+    if user_instance is not None:
         user_instance.password = make_password(data["new_password"])
         user_instance.save()
         return Response("Password has been reset")
-    else :
+    else:
         return Response("User not found")
 
 
@@ -88,6 +93,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         # Add custom claims
+        token['id']=user.id
         token['email'] = user.email
         # ...
 

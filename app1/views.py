@@ -5,7 +5,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .models import *
-from.serializer import *
+from .serializer import *
+
 
 @api_view(['POST'])
 def create_cat(request):
@@ -23,10 +24,11 @@ def create_cat(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+
 @api_view(['GET'])
 def get_cat(request):
-    categories=Category.objects.all()
-    serializer=categorySerializer(categories,many=True)
+    categories = Category.objects.all()
+    serializer = categorySerializer(categories, many=True)
     return Response(serializer.data)
 
 
@@ -60,23 +62,26 @@ def create_item(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(['GET'])
-def get_items(request,item_cat):
-    items=Item.objects.filter(item_cat=item_cat)
-    serializer=itemserializer(items,many=True)
+def get_items(request, item_cat):
+    items = Item.objects.filter(item_cat=item_cat)
+    serializer = itemserializer(items, many=True)
     return Response(serializer.data)
+
 
 @api_view(['POST'])
 def create_favorite(request):
-    data=request.data
-    user=CustomUser.objects.get(email=data["email"])
-    item=Item.objects.get(item_id=data["item_id"])
-    fav=Favorite.objects.create(
+    data = request.data
+    user = CustomUser.objects.get(email=data["email"])
+    item = Item.objects.get(item_id=data["item_id"])
+    fav = Favorite.objects.create(
         fav_user=user,
         fav_item=item
     )
-    serializer=favserializer(fav,many=False)
+    serializer = favserializer(fav, many=False)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 def get_favorite(request, id):
@@ -85,4 +90,18 @@ def get_favorite(request, id):
     serializer = itemserializer(items, many=True)
     return Response(serializer.data)
 
+
+@api_view(['GET'])
+def get_items_bool(request, item_cat, id_user):
+    items = Favorite.objects.filter(fav_user=id_user).values_list('fav_item', flat=True)
+    all_items_cat_x=Item.objects.filter(item_cat__in=items)
+    all_favorite_items_x = Item.objects.filter(item_id__in=all_items_cat_x, item_cat=item_cat)
+    list_bool = [all_favorite_items_x.filter(item_id=item_id).exists() for item_id in all_items_cat_x]
+    return Response(list_bool)
+
+
+@api_view(['DELETE'])
+def delete_favorite(request):
+    data = request.data
+    item_fav = Favorite.objects.get(fav_item=data["fav_item"])
 # Create your views here.

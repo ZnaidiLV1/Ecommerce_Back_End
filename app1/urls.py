@@ -12,4 +12,5 @@ urlpatterns =[
     # Favorite
     path('create_favorite/',create_favorite),
     path('<int:id>-get_favorites/',get_favorite),
+    path('<int:item_cat>-<int:id_user>-get_cat_favorite/',get_items_bool),
 ]
