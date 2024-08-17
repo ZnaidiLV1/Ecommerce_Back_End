@@ -17,3 +17,8 @@ class favserializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = "__all__"
+
+class cartserializer(serializers.ModelSerializer):
+    class Meta:
+        model=Cart
+        fields='__all__'

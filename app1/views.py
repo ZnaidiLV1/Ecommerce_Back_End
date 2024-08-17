@@ -94,9 +94,15 @@ def get_favorite(request, id):
 @api_view(['GET'])
 def get_items_bool(request, item_cat, id_user):
     items = Favorite.objects.filter(fav_user=id_user).values_list('fav_item', flat=True)
-    all_items_cat_x=Item.objects.filter(item_cat__in=items)
-    all_favorite_items_x = Item.objects.filter(item_id__in=all_items_cat_x, item_cat=item_cat)
-    list_bool = [all_favorite_items_x.filter(item_id=item_id).exists() for item_id in all_items_cat_x]
+    items_cat_x = Item.objects.filter(item_id__in=items, item_cat=item_cat)
+    all_items_cat_x=Item.objects.filter(item_cat=item_cat)
+    list_bool = []
+    for item in all_items_cat_x:
+        if items_cat_x.filter(item_id=item.item_id).exists():
+            list_bool.append(True)
+        else:
+            list_bool.append(False)
+
     return Response(list_bool)
 
 
@@ -104,4 +110,43 @@ def get_items_bool(request, item_cat, id_user):
 def delete_favorite(request):
     data = request.data
     item_fav = Favorite.objects.get(fav_item=data["fav_item"])
+    item_fav.delete()
+    return Response("Favorite deleted successfully")
+
+@api_view(['POST'])
+def create_cart(request):
+    data=request.data
+    item=get_object_or_404(Item,item_id=data["cart_item"])
+    user=get_object_or_404(CustomUser,id=data["cart_user"])
+    cart=Cart.objects.create(
+        cart_item=item,
+        cart_user=user,
+        cart_quantity=int(data["cart_quantity"])
+    )
+    serializer=cartserializer(cart,many=False)
+    return Response(serializer.data)
+
+@api_view(['PUT'])
+def update_cart_quantity(request):
+    data=request.data
+    cart=get_object_or_404(Cart,cart_id=data["cart_id"])
+    cart.cart_quantity=data["cart_quantity"]
+    cart.save()
+    serializer=cartserializer(cart,many=False)
+    return Response(serializer.data)
+
+@api_view(['DELETE'])
+def delete_cart(request):
+    data=request.data
+    cart=get_object_or_404(Cart,cart_id=data["cart_id"])
+    cart.delete()
+    return Response("Cart deleted successfully")
+
+@api_view(['GET'])
+def get_carts(request,cart_user):
+    items_id_list=Cart.objects.filter(cart_user=cart_user).values_list("cart_item",flat=True)
+    items=Item.objects.filter(item_id__in=items_id_list)
+    serializer=itemserializer(items,many=True)
+    return Response(serializer.data)
+
 # Create your views here.
