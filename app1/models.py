@@ -31,5 +31,5 @@ class Cart(models.Model):
     cart_id=models.AutoField(primary_key=True)
     cart_user=models.ForeignKey(CustomUser,on_delete=models.CASCADE)
     cart_item=models.ForeignKey(Item,on_delete=models.CASCADE)
-    cart_quantity=models.IntegerField()
+    cart_quantity=models.IntegerField(default=0)
 # Create your models here.

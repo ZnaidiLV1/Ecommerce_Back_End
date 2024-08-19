@@ -18,5 +18,9 @@ urlpatterns =[
     path('create_cart/',create_cart),
     path('update_cart_quantity/',update_cart_quantity),
     path('<int:cart_user>-get_carts/',get_carts),
+    path('<int:cart_user>-get_all_carts/',get_all_carts),
     path('delete_cart/',delete_cart),
+    path('<int:cart_user>-get_quantity_list/',get_cart_quantity_list),
+    path('cart_add_quantity/',cart_add_quantity),
+    path('cart_remove_quantity/',cart_remove_quantity),
 ]

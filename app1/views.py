@@ -149,4 +149,33 @@ def get_carts(request,cart_user):
     serializer=itemserializer(items,many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def get_cart_quantity_list(request,cart_user):
+    cart_quantity_list = Cart.objects.filter(cart_user=cart_user).values_list("cart_quantity", flat=True)
+    return Response(cart_quantity_list)
+
+@api_view(['PUT'])
+def cart_add_quantity(request):
+    data=request.data
+    cart=Cart.objects.get(cart_id=data["cart_id"])
+    cart.cart_quantity=cart.cart_quantity+1
+    cart.save()
+    serializer=cartserializer(cart,many=False)
+    return Response(serializer.data)
+
+@api_view(['PUT'])
+def cart_remove_quantity(request):
+    data=request.data
+    cart=Cart.objects.get(cart_id=data["cart_id"])
+    cart.cart_quantity=cart.cart_quantity-1
+    cart.save()
+    serializer=cartserializer(cart,many=False)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_all_carts(request,cart_user):
+    carts=Cart.objects.filter(cart_user=cart_user)
+    serializer=cartserializer(carts,many=True)
+    return Response(serializer.data)
+
 # Create your views here.
