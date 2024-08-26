@@ -121,7 +121,8 @@ def create_cart(request):
     cart=Cart.objects.create(
         cart_item=item,
         cart_user=user,
-        cart_quantity=int(data["cart_quantity"])
+        cart_quantity=int(data["cart_quantity"]),
+        cart_count=int(item.item_count)
     )
     serializer=cartserializer(cart,many=False)
     return Response(serializer.data)
@@ -145,13 +146,13 @@ def delete_cart(request):
 @api_view(['GET'])
 def get_carts(request,cart_user):
     items_id_list=Cart.objects.filter(cart_user=cart_user).values_list("cart_item",flat=True)
-    items=Item.objects.filter(item_id__in=items_id_list)
+    items=Item.objects.filter(item_id__in=items_id_list).order_by('item_id')
     serializer=itemserializer(items,many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_cart_quantity_list(request,cart_user):
-    cart_quantity_list = Cart.objects.filter(cart_user=cart_user).values_list("cart_quantity", flat=True)
+    cart_quantity_list = Cart.objects.filter(cart_user=cart_user).values_list("cart_quantity", flat=True).order_by('item_id')
     return Response(cart_quantity_list)
 
 @api_view(['PUT'])
@@ -172,17 +173,11 @@ def cart_remove_quantity(request):
     serializer=cartserializer(cart,many=False)
     return Response(serializer.data)
 
-@api_view(['PUT'])
-def item_add_quantity(request):
-    data=request.data
-    item=Item.objects.get(item_id=data["item_id"])
-    item.item_count=item.cart_quantity - 1
-    item.save()
-    serializer=itemserializer(item,many=False)
-    return Response(serializer.data)
+
 
 @api_view(['PUT'])
 def item_remove_quantity(request):
+    #it has to be updated
     data = request.data
     item = Item.objects.get(item_id=data["item_id"])
     item.item_count = item.cart_quantity + 1
@@ -192,7 +187,7 @@ def item_remove_quantity(request):
 
 @api_view(['GET'])
 def get_all_carts(request,cart_user):
-    carts=Cart.objects.filter(cart_user=cart_user)
+    carts=Cart.objects.filter(cart_user=cart_user).order_by("cart_item")
     serializer=cartserializer(carts,many=True)
     return Response(serializer.data)
 
