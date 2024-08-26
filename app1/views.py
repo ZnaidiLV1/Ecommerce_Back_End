@@ -172,6 +172,24 @@ def cart_remove_quantity(request):
     serializer=cartserializer(cart,many=False)
     return Response(serializer.data)
 
+@api_view(['PUT'])
+def item_add_quantity(request):
+    data=request.data
+    item=Item.objects.get(item_id=data["item_id"])
+    item.item_count=item.cart_quantity - 1
+    item.save()
+    serializer=itemserializer(item,many=False)
+    return Response(serializer.data)
+
+@api_view(['PUT'])
+def item_remove_quantity(request):
+    data = request.data
+    item = Item.objects.get(item_id=data["item_id"])
+    item.item_count = item.cart_quantity + 1
+    item.save()
+    serializer = itemserializer(item, many=False)
+    return Response(serializer.data)
+
 @api_view(['GET'])
 def get_all_carts(request,cart_user):
     carts=Cart.objects.filter(cart_user=cart_user)
