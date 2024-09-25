@@ -46,7 +46,7 @@ def create_item(request):
             item_active=bool(data["item_active"]),
             item_price=int(data["item_price"]),
             item_discount=int(data["item_discount"]),
-            item_cat=item_cat  # Assign the foreign key relation
+            item_cat=item_cat
         )
 
         # Serialize the created item
@@ -112,6 +112,22 @@ def delete_favorite(request):
     item_fav = Favorite.objects.get(fav_item=data["fav_item"])
     item_fav.delete()
     return Response("Favorite deleted successfully")
+
+@api_view(['GET'])
+def get_all_items(request):
+    items=Item.objects.values_list("item_name",flat=True)
+    return Response(items)
+
+@api_view(['GET'])
+def get_item(request,item_name):
+    try:
+        item = Item.objects.get(item_name=item_name)
+        serializer = itemserializer(item, many=False)
+        return Response(serializer.data)
+    except Item.DoesNotExist:
+        return Response("Item does not exist")
+    except Exception as e:
+        return Response(str(e))
 
 @api_view(['POST'])
 def create_cart(request):
@@ -190,5 +206,11 @@ def get_all_carts(request,cart_user):
     carts=Cart.objects.filter(cart_user=cart_user).order_by("cart_item")
     serializer=cartserializer(carts,many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def is_in_Cart(request,cart_item,cart_user):
+    is_in_cart=Cart.objects.filter(cart_user=cart_user,cart_item=cart_item).exists()
+    return Response(is_in_cart)
 
 # Create your views here.

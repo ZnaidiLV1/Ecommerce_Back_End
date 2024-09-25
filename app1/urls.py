@@ -9,6 +9,8 @@ urlpatterns =[
     # Item's urls
     path('create_item/',create_item),
     path('<int:item_cat>-get_items/',get_items),
+    path('get_all_items/',get_all_items),
+    path('<str:item_name>-get_item/',get_item),
     # Favorite
     path('create_favorite/',create_favorite),
     path('<int:id>-get_favorites/',get_favorite),
@@ -22,6 +24,7 @@ urlpatterns =[
     path('delete_cart/',delete_cart),
     path('<int:cart_user>-get_quantity_list/',get_cart_quantity_list),
     path('delete_cart/',delete_cart),
+    path('<int:cart_user>-<int:cart_item>-is_in_cart/',is_in_Cart),
     # + - urls
     path('cart_add_quantity/',cart_add_quantity),
     path('cart_remove_quantity/',cart_remove_quantity),
